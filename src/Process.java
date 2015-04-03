@@ -1,24 +1,37 @@
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 
 public class Process {
 	private Integer PID;
 	private Integer sizeOfLogicalAddressSpace;
-	private List<Integer> pageReferences;
+	private Stack<Integer> pageReferences;
+	private Set<Integer> uniquePages;
 	private PageTable pageTable;
 	
 	public Process(){
 		PID = null;
 		sizeOfLogicalAddressSpace = null;
-		pageReferences = new ArrayList<Integer>();
+		pageReferences = new Stack<Integer>();
+		uniquePages = new HashSet<Integer>();
 		pageTable = new PageTable();
 	}
 	
 	public Process(Integer PID){
 		this.PID = PID;
 		sizeOfLogicalAddressSpace = null;
-		pageReferences = new ArrayList<Integer>();
+		pageReferences = new Stack<Integer>();
+		uniquePages = new HashSet<Integer>();
+		pageTable = new PageTable();
+	}
+	
+	public Process(Integer PID, Integer sizeOfLogicalAddressSpace){
+		this.PID = PID;
+		this.sizeOfLogicalAddressSpace = sizeOfLogicalAddressSpace;
+		pageReferences = new Stack<Integer>();
+		uniquePages = new HashSet<Integer>();
 		pageTable = new PageTable();
 	}
 
@@ -31,11 +44,13 @@ public class Process {
 	}
 
 	public void insertPageReference(Integer pageReference){
-		pageReferences.add(pageReference);
+		pageReferences.push(pageReference);
+		uniquePages.add(pageReference);
 	}
 	
 	public void insertPageReferences(List<Integer> pageReferences){
-		this.pageReferences.addAll(pageReferences);
+		pageReferences.addAll(pageReferences);
+		uniquePages.addAll(pageReferences);
 	}
 	
 	public Integer getNbrPageReferences(){
@@ -52,5 +67,23 @@ public class Process {
 
 	public PageTable getPageTable() {
 		return pageTable;
+	}
+
+	public Set<Integer> getUniquePages() {
+		return uniquePages;
+	}
+	
+	public Integer getLeastRecentReferencePage(){
+		Integer leastRecent = -1;
+		for (Integer integer : uniquePages) {
+			if(pageReferences.search(integer) > leastRecent){
+				leastRecent = pageReferences.search(integer);
+			}
+		}
+		return leastRecent;
+	}
+	
+	public Integer getMostRecentReferencePage(){
+		return pageReferences.peek();
 	}
 }
