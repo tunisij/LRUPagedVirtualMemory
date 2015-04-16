@@ -1,38 +1,29 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
-
 
 public class Process {
 	private Integer PID;
-	private Integer sizeOfLogicalAddressSpace;
-	private Stack<Integer> pageReferences;
+	private List<Integer> pageTable;
 	private Set<Integer> uniquePages;
-	private PageTable pageTable;
+	private Integer nbrOfMemoryReferences;
+	private Integer nbrOfPageFaults;
 	
 	public Process(){
 		PID = null;
-		sizeOfLogicalAddressSpace = null;
-		pageReferences = new Stack<Integer>();
+		pageTable = new ArrayList<Integer>();
 		uniquePages = new HashSet<Integer>();
-		pageTable = new PageTable();
+		nbrOfMemoryReferences = 0;
+		nbrOfPageFaults = 0;
 	}
 	
 	public Process(Integer PID){
 		this.PID = PID;
-		sizeOfLogicalAddressSpace = null;
-		pageReferences = new Stack<Integer>();
+		pageTable = new ArrayList<Integer>();
 		uniquePages = new HashSet<Integer>();
-		pageTable = new PageTable();
-	}
-	
-	public Process(Integer PID, Integer sizeOfLogicalAddressSpace){
-		this.PID = PID;
-		this.sizeOfLogicalAddressSpace = sizeOfLogicalAddressSpace;
-		pageReferences = new Stack<Integer>();
-		uniquePages = new HashSet<Integer>();
-		pageTable = new PageTable();
+		nbrOfMemoryReferences = 0;
+		nbrOfPageFaults = 0;
 	}
 
 	public Integer getPID() {
@@ -43,47 +34,44 @@ public class Process {
 		PID = pID;
 	}
 
-	public void insertPageReference(Integer pageReference){
-		pageReferences.push(pageReference);
-		uniquePages.add(pageReference);
-	}
-	
-	public void insertPageReferences(List<Integer> pageReferences){
-		pageReferences.addAll(pageReferences);
-		uniquePages.addAll(pageReferences);
-	}
-	
-	public Integer getNbrPageReferences(){
-		return pageReferences.size();
-	}
-	
-	public Integer getSizeOfLogicalAddressSpace() {
-		return sizeOfLogicalAddressSpace;
-	}
-
-	public void setSizeOfLogicalAddressSpace(Integer sizeOfLogicalAddressSpace) {
-		this.sizeOfLogicalAddressSpace = sizeOfLogicalAddressSpace;
-	}
-
-	public PageTable getPageTable() {
+	public List<Integer> getPageTable() {
 		return pageTable;
 	}
-
-	public Set<Integer> getUniquePages() {
-		return uniquePages;
+	
+	public void setPageTable(List<Integer> pageTable){
+		this.pageTable = pageTable;
 	}
 	
-	public Integer getLeastRecentReferencePage(){
-		Integer leastRecent = -1;
-		for (Integer integer : uniquePages) {
-			if(pageReferences.search(integer) > leastRecent){
-				leastRecent = pageReferences.search(integer);
-			}
+	public void insertPageReference(Integer reference){
+		if(pageTable.contains(reference)){
+			pageTable.remove(reference);
 		}
-		return leastRecent;
+		else{
+			nbrOfPageFaults++;
+		}
+		pageTable.add(reference);
+		uniquePages.add(reference);
+		nbrOfMemoryReferences++;
 	}
 	
-	public Integer getMostRecentReferencePage(){
-		return pageReferences.peek();
+	public Integer getSizeOfLogicalAddressSpace(){
+		return uniquePages.size();
+	}
+	
+	public Integer getNbrOfMemoryReferences(){
+		return nbrOfMemoryReferences;
+	}
+	
+	public void printPageTable(Integer frame){
+		System.out.println("P" + PID + ": page table");
+		System.out.println("--------|--------------------------");
+		System.out.println("Page:\t|\tFrame:");
+		System.out.println("--------|--------------------------");
+		for (Integer page : pageTable) {
+			System.out.println(page + "\t|\t");
+			System.out.println("--------|--------------------------");
+//			System.out.println();
+		}
+		System.out.println();
 	}
 }
